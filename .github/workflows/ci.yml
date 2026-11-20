@@ -1,0 +1,19 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          # Use the SDK major version you installed (check `dotnet --version`)
+          dotnet-version: "11.0.100"
+      - run: dotnet build src/api/api.csproj
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "26.13.1"
+      - run: npm ci --prefix src/web
+      - run: npm run build --prefix src/web

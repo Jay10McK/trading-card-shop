@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop-dev-only
+      POSTGRES_DB: cardshop
+    ports:
+      - "5432:5432"
+    volumes:
+      - cardshop-data:/var/lib/postgresql/data
+
+  api:
+    build: ./src/api
+    environment:
+      ConnectionStrings__CardShop: "Host=db;Port=5432;Database=cardshop;Username=shop;Password=shop-dev-only"
+      ASPNETCORE_URLS: "http://+:8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: ./src/web
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:8080"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:8080"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  cardshop-data:
